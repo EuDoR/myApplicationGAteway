@@ -30,7 +30,7 @@ resource "azurerm_subnet" "subnet_docker" {
   name                 = "SubnetDocker"
   resource_group_name  = azurerm_resource_group.MyResourceGroup.name
   virtual_network_name = azurerm_virtual_network.MyVNet.name
-  address_prefixes     = [var.subnet_docker_prefix]  
+  address_prefixes     = [var.subnet_docker_prefix]
 }
 resource "azurerm_subnet" "subnet_otras" {
   name                 = "SubnetOtras"
@@ -85,8 +85,56 @@ resource "azurerm_network_interface" "nic_otras" {
   }
 }
 
+resource "azurerm_network_security_group" "nsg_vms" {
+  name                = "NSGVMS"
+  location            = azurerm_resource_group.MyResourceGroup.location
+  resource_group_name = azurerm_resource_group.MyResourceGroup.name
 
+  security_rule {
+    name                       = "AllowSSH"
+    priority                   = 1000
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_ranges    = ["22"]
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+}
 
-# resource "azurerm_linux_virtual_machine" "docker" {
-#   name = "docker-vm"
-# }
+# Associate Network Security Groups with subnets
+resource "azurerm_subnet_network_security_group_association" "dockerSubnetNSG" {
+  subnet_id                 = azurerm_subnet.subnet_docker.id
+  network_security_group_id = azurerm_network_security_group.nsg_vms.id
+}
+
+resource "azurerm_subnet_network_security_group_association" "otrasSubnetNSG" {
+  subnet_id                 = azurerm_subnet.subnet_otras.id
+  network_security_group_id = azurerm_network_security_group.nsg_vms.id
+}
+
+resource "azurerm_linux_virtual_machine" "vm_docker" {
+  name                = "VMDocker"
+  resource_group_name = azurerm_resource_group.MyResourceGroup.name
+  location            = azurerm_resource_group.MyResourceGroup.location
+  size                = "Standard_DS1_v2"
+  admin_username      = "adminuser"
+  admin_password      = "P@ssw0rd1234!"
+  network_interface_ids = [
+    azurerm_network_interface.nic_docker.id,
+  ]
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "18.04-LTS"
+    version   = "latest"
+  }
+  
+}
