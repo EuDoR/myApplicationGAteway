@@ -17,32 +17,32 @@ instrucciones para crear //////////////
     {Define la red virtual (VNet) y subredes necesarias.
     Decide en qué subred estará el Application Gateway y en cuáles los servidores.
     Determina los grupos de seguridad (NSG) y reglas de acceso.}
-        1. Determina el rango de direcciones IP para la VNet
+        1.1 Determina el rango de direcciones IP para la VNet
             Decide el rango privado que usará tu red virtual, por ejemplo: 10.0.0.0/16.
             Este rango debe ser suficientemente amplio para tus subredes y crecimiento futuro.
-        2. Decide cuántas subredes necesitas
+        1.2 Decide cuántas subredes necesitas
             Subred para Application Gateway:
             Ejemplo: 10.0.1.0/24
             Debe ser exclusiva para el Application Gateway.
             Subred para las máquinas virtuales:
             Ejemplo: 10.0.2.0/24
             Puedes usar una sola subred para ambas VMs o crear una subred para cada VM si quieres mayor aislamiento.
-        3. Asigna nombres descriptivos
+        1.3 Asigna nombres descriptivos
             Ejemplo de nombres:
             VNet: MyAppVNet
             Subred Application Gateway: AppGatewaySubnet
             Subred VMs: VMSubnet1, VMSubnet2
-        4. Reúne la información necesaria
+        1.4 Reúne la información necesaria
             Rango de IP para la VNet.
             Rango de IP para cada subred.
             Nombres para la VNet y subredes.
             Región de Azure donde desplegarás los recursos.
-        5. Considera requisitos adicionales
+        1.5 Considera requisitos adicionales
             El Application Gateway debe estar en una subred dedicada.
             Verifica que los rangos de IP no se solapen.
             Piensa si necesitarás conectividad con otras redes (VPN, ExpressRoute).
             Decide si las VMs estarán en la misma subred o en subredes separadas.
-        6. Documenta tu diseño
+        1.6 Documenta tu diseño
             Haz un diagrama simple o una tabla con los rangos y nombres de cada subred.
             Ejemplo:
             Recurso	            Nombre	            Rango IP
@@ -55,6 +55,12 @@ instrucciones para crear //////////////
     {Crea la VNet y subredes.
     Crea dos máquinas virtuales (VMs) en las subredes correspondientes.
     Crea el Application Gateway en su propia subred.}
+    2.1 Define los recursos para las VMs:
+        Cada VM debe estar asociada a una subred diferente (por ejemplo, VM1 en VMSubnet1, VM2 en VMSubnet2).
+        Necesitarás recursos adicionales: IP pública (si la necesitas), interfaz de red (NIC), y posiblemente un NSG (grupo de seguridad de red) para cada VM.
+    2.2 Define el recurso para el Application Gateway:
+        Debe estar en la subred exclusiva para el gateway.
+        Requiere su propia IP pública, configuración de frontend/backend, y asociación a la subred.
 3. Configuración de los servidores
     Accede a cada VM.
     En la primera VM, instala Docker.
