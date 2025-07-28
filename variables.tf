@@ -5,6 +5,6 @@ variable "subnet_ag_prefix" {
 variable "subnet_docker_prefix" {
   default = "10.0.2.0/24"
 }
-variable "subnet_otras_prefix" {
+variable "subnet_otrasApps_prefix" {
   default = "10.0.3.0/24"
 }

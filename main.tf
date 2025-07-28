@@ -32,11 +32,11 @@ resource "azurerm_subnet" "subnet_docker" {
   virtual_network_name = azurerm_virtual_network.MyVNet.name
   address_prefixes     = [var.subnet_docker_prefix]
 }
-resource "azurerm_subnet" "subnet_otras" {
-  name                 = "SubnetOtras"
+resource "azurerm_subnet" "subnet_otrasapps" {
+  name                 = "SubnetOtrasapps"
   resource_group_name  = azurerm_resource_group.MyResourceGroup.name
   virtual_network_name = azurerm_virtual_network.MyVNet.name
-  address_prefixes     = [var.subnet_otras_prefix]
+  address_prefixes     = [var.subnet_otrasApps_prefix]
 }
 
 # Create Public IPs for Application Gateway, Docker, and other resources
@@ -52,8 +52,8 @@ resource "azurerm_public_ip" "public_ip_docker" {
   resource_group_name = azurerm_resource_group.MyResourceGroup.name
   allocation_method   = "Dynamic"   
 }
-resource "azurerm_public_ip" "public_ip_otras" {
-  name                = "PublicIPOtras"
+resource "azurerm_public_ip" "public_ip_otrasApps" {
+  name                = "PublicIPOtrasApps"
   location            = azurerm_resource_group.MyResourceGroup.location
   resource_group_name = azurerm_resource_group.MyResourceGroup.name
   allocation_method   = "Dynamic"
@@ -72,16 +72,16 @@ resource "azurerm_network_interface" "nic_docker" {
     public_ip_address_id          = azurerm_public_ip.public_ip_docker.id
   }
 }
-resource "azurerm_network_interface" "nic_otras" {
-  name                = "NICOtras"
+resource "azurerm_network_interface" "nic_otrasApps" {
+  name                = "NICOtrasApps"
   location            = azurerm_resource_group.MyResourceGroup.location
   resource_group_name = azurerm_resource_group.MyResourceGroup.name
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = azurerm_subnet.subnet_otras.id
+    subnet_id                     = azurerm_subnet.subnet_otrasapps.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.public_ip_otras.id
+    public_ip_address_id          = azurerm_public_ip.public_ip_otrasApps.id
   }
 }
 
@@ -109,18 +109,19 @@ resource "azurerm_subnet_network_security_group_association" "dockerSubnetNSG" {
   network_security_group_id = azurerm_network_security_group.nsg_vms.id
 }
 
-resource "azurerm_subnet_network_security_group_association" "otrasSubnetNSG" {
-  subnet_id                 = azurerm_subnet.subnet_otras.id
+resource "azurerm_subnet_network_security_group_association" "otrasAppsSubnetNSG" {
+  subnet_id                 = azurerm_subnet.subnet_otrasapps.id
   network_security_group_id = azurerm_network_security_group.nsg_vms.id
 }
 
+# VMs
 resource "azurerm_linux_virtual_machine" "vm_docker" {
   name                = "VMDocker"
   resource_group_name = azurerm_resource_group.MyResourceGroup.name
   location            = azurerm_resource_group.MyResourceGroup.location
-  size                = "Standard_DS1_v2"
+  size                = "Standard_B1s"
   admin_username      = "adminuser"
-  admin_password      = "P@ssw0rd1234!"
+  admin_password      = "12345678"
   network_interface_ids = [
     azurerm_network_interface.nic_docker.id,
   ]
@@ -137,4 +138,26 @@ resource "azurerm_linux_virtual_machine" "vm_docker" {
     version   = "latest"
   }
   
+}
+
+resource "azurerm_linux_virtual_machine" "vm_otrasApps" {
+  name  = "VMOtrasApps"
+  resource_group_name = azurerm_resource_group.MyResourceGroup.name
+  location = azurerm_resource_group.MyResourceGroup.location
+  size = "Standard_B1s"
+  admin_username = "adminuser"
+  admin_password = "12345678"
+  network_interface_ids = [
+    azurerm_network_interface.nic_otrasApps.id
+  ]
+  os_disk {
+    caching = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "18.04-LTS"
+    version   = "latest"
+  }
 }
