@@ -114,7 +114,7 @@ resource "azurerm_subnet_network_security_group_association" "otrasAppsSubnetNSG
   network_security_group_id = azurerm_network_security_group.nsg_vms.id
 }
 
-# VMs
+# Create Virtual Machines for Docker and other applications
 resource "azurerm_linux_virtual_machine" "vm_docker" {
   name                = "VMDocker"
   resource_group_name = azurerm_resource_group.MyResourceGroup.name
@@ -159,5 +159,59 @@ resource "azurerm_linux_virtual_machine" "vm_otrasApps" {
     offer     = "UbuntuServer"
     sku       = "18.04-LTS"
     version   = "latest"
+  }
+}
+
+resource "azurerm_application_gateway" "application_gateway" {
+  name                = "MyApplicationGateway"
+  location            = azurerm_resource_group.MyResourceGroup.location
+  resource_group_name = azurerm_resource_group.MyResourceGroup.name
+
+  sku {
+    name     = "Standard_v2"
+    tier     = "Standard_v2"
+    capacity = 2
+  }
+  
+  gateway_ip_configuration {
+    name      = "gatewayIpConfig"
+    subnet_id = azurerm_subnet.subnet_ag.id
+  }
+
+  frontend_port {
+    name = "frontendPort"
+    port = [80,443]
+  }
+
+  frontend_ip_configuration {
+    name                 = "frontendIpConfig"
+    public_ip_address_id = azurerm_public_ip.public_ip_ag.id
+  }
+
+  backend_address_pool {
+    name = "backendPool"
+  }
+
+  backend_http_settings {
+    name                  = "httpSettings"
+    cookie_based_affinity = "Disabled"
+    port                  = 80
+    protocol              = "Http"
+    request_timeout       = 20
+  }
+
+  http_listener {
+    name                           = "httpListener"
+    frontend_ip_configuration_name = "frontendIpConfig"
+    frontend_port_name             = "frontendPort"
+    protocol                       = "Http"
+  }
+
+  request_routing_rule {
+    name                       = "rule1"
+    rule_type                  = "Basic"
+    http_listener_name         = "httpListener"
+    backend_address_pool_name  = "backendPool"
+    backend_http_settings_name = "httpSettings"
   }
 }
