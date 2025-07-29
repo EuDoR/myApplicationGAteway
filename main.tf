@@ -1,14 +1,14 @@
 # main.tf
 provider "azurerm" {
   features {
-    
+
   }
 }
 # Create a Resource Group
 resource "azurerm_resource_group" "MyResourceGroup" {
   name     = "ResourceGroupEud0r"
   location = "East US"
-  
+
 }
 
 # Create a Virtual Network
@@ -32,32 +32,32 @@ resource "azurerm_subnet" "subnet_docker" {
   virtual_network_name = azurerm_virtual_network.MyVNet.name
   address_prefixes     = [var.subnet_docker_prefix]
 }
-resource "azurerm_subnet" "subnet_otrasapps" {
-  name                 = "SubnetOtrasapps"
-  resource_group_name  = azurerm_resource_group.MyResourceGroup.name
-  virtual_network_name = azurerm_virtual_network.MyVNet.name
-  address_prefixes     = [var.subnet_otrasApps_prefix]
-}
+# resource "azurerm_subnet" "subnet_otrasapps" {
+#   name                 = "SubnetOtrasapps"
+#   resource_group_name  = azurerm_resource_group.MyResourceGroup.name
+#   virtual_network_name = azurerm_virtual_network.MyVNet.name
+#   address_prefixes     = [var.subnet_otrasApps_prefix]
+# }
 
 # Create Public IPs for Application Gateway, Docker, and other resources
 resource "azurerm_public_ip" "public_ip_ag" {
   name                = "PublicIPAG"
   location            = azurerm_resource_group.MyResourceGroup.location
   resource_group_name = azurerm_resource_group.MyResourceGroup.name
-  allocation_method   = "Dynamic" 
+  allocation_method   = "Dynamic"
 }
 resource "azurerm_public_ip" "public_ip_docker" {
   name                = "PublicIPDocker"
   location            = azurerm_resource_group.MyResourceGroup.location
   resource_group_name = azurerm_resource_group.MyResourceGroup.name
-  allocation_method   = "Dynamic"   
-}
-resource "azurerm_public_ip" "public_ip_otrasApps" {
-  name                = "PublicIPOtrasApps"
-  location            = azurerm_resource_group.MyResourceGroup.location
-  resource_group_name = azurerm_resource_group.MyResourceGroup.name
   allocation_method   = "Dynamic"
 }
+# resource "azurerm_public_ip" "public_ip_otrasApps" {
+#   name                = "PublicIPOtrasApps"
+#   location            = azurerm_resource_group.MyResourceGroup.location
+#   resource_group_name = azurerm_resource_group.MyResourceGroup.name
+#   allocation_method   = "Dynamic"
+# }
 
 # Create Network Interfaces for Application Gateway, Docker, and other resources
 resource "azurerm_network_interface" "nic_docker" {
@@ -72,18 +72,18 @@ resource "azurerm_network_interface" "nic_docker" {
     public_ip_address_id          = azurerm_public_ip.public_ip_docker.id
   }
 }
-resource "azurerm_network_interface" "nic_otrasApps" {
-  name                = "NICOtrasApps"
-  location            = azurerm_resource_group.MyResourceGroup.location
-  resource_group_name = azurerm_resource_group.MyResourceGroup.name
+# resource "azurerm_network_interface" "nic_otrasApps" {
+#   name                = "NICOtrasApps"
+#   location            = azurerm_resource_group.MyResourceGroup.location
+#   resource_group_name = azurerm_resource_group.MyResourceGroup.name
 
-  ip_configuration {
-    name                          = "internal"
-    subnet_id                     = azurerm_subnet.subnet_otrasapps.id
-    private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.public_ip_otrasApps.id
-  }
-}
+#   ip_configuration {
+#     name                          = "internal"
+#     subnet_id                     = azurerm_subnet.subnet_otrasapps.id
+#     private_ip_address_allocation = "Dynamic"
+#     public_ip_address_id          = azurerm_public_ip.public_ip_otrasApps.id
+#   }
+# }
 
 resource "azurerm_network_security_group" "nsg_vms" {
   name                = "NSGVMS"
@@ -109,10 +109,10 @@ resource "azurerm_subnet_network_security_group_association" "dockerSubnetNSG" {
   network_security_group_id = azurerm_network_security_group.nsg_vms.id
 }
 
-resource "azurerm_subnet_network_security_group_association" "otrasAppsSubnetNSG" {
-  subnet_id                 = azurerm_subnet.subnet_otrasapps.id
-  network_security_group_id = azurerm_network_security_group.nsg_vms.id
-}
+# resource "azurerm_subnet_network_security_group_association" "otrasAppsSubnetNSG" {
+#   subnet_id                 = azurerm_subnet.subnet_otrasapps.id
+#   network_security_group_id = azurerm_network_security_group.nsg_vms.id
+# }
 
 # Create Virtual Machines for Docker and other applications
 resource "azurerm_linux_virtual_machine" "vm_docker" {
@@ -121,7 +121,7 @@ resource "azurerm_linux_virtual_machine" "vm_docker" {
   location            = azurerm_resource_group.MyResourceGroup.location
   size                = "Standard_B1s"
   admin_username      = "adminuser"
-  admin_password      = "12345678"
+  admin_password      = "@dmin1234"
   network_interface_ids = [
     azurerm_network_interface.nic_docker.id,
   ]
@@ -137,40 +137,40 @@ resource "azurerm_linux_virtual_machine" "vm_docker" {
     sku       = "18.04-LTS"
     version   = "latest"
   }
-  
-  custom_data = filebase64("scripts/docker_install.sh")
+
+  custom_data = filebase64("scripts/dockerinstall.sh")
 }
 
-resource "azurerm_linux_virtual_machine" "vm_otrasApps" {
-  name  = "VMOtrasApps"
-  resource_group_name = azurerm_resource_group.MyResourceGroup.name
-  location = azurerm_resource_group.MyResourceGroup.location
-  size = "Standard_B1s"
-  admin_username = "adminuser"
-  admin_password = "12345678"
-  network_interface_ids = [
-    azurerm_network_interface.nic_otrasApps.id
-  ]
-  os_disk {
-    caching = "ReadWrite"
-    storage_account_type = "Standard_LRS"
-  }
-  source_image_reference {
-    publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "18.04-LTS"
-    version   = "latest"
-  }
-}
+# resource "azurerm_linux_virtual_machine" "vm_otrasApps" {
+#   name  = "VMOtrasApps"
+#   resource_group_name = azurerm_resource_group.MyResourceGroup.name
+#   location = azurerm_resource_group.MyResourceGroup.location
+#   size = "Standard_B1s"
+#   admin_username = "adminuser"
+#   admin_password = "@dmin1234"
+#   network_interface_ids = [
+#     azurerm_network_interface.nic_otrasApps.id
+#   ]
+#   os_disk {
+#     caching = "ReadWrite"
+#     storage_account_type = "Standard_LRS"
+#   }
+#   source_image_reference {
+#     publisher = "Canonical"
+#     offer     = "UbuntuServer"
+#     sku       = "18.04-LTS"
+#     version   = "latest"
+#   }
+# }
 
 # Create Local Variables for Application Gateway
 locals {
-  backend_address_pool_name = "${azurerm_virtual_network.MyVNet.name}-APbeap"
-  frontend_port_name = "${azurerm_virtual_network.MyVNet.name}-APfeport"
+  backend_address_pool_name      = "${azurerm_virtual_network.MyVNet.name}-APbeap"
+  frontend_port_name             = "${azurerm_virtual_network.MyVNet.name}-APfeport"
   frontend_ip_configuration_name = "${azurerm_virtual_network.MyVNet.name}-APfeipconfig"
-  http_settings_name = "${azurerm_virtual_network.MyVNet.name}-APbe-htst"
-  listener_name = "${azurerm_virtual_network.MyVNet.name}-APlistener"
-  request_routing_rule_name = "${azurerm_virtual_network.MyVNet.name}-APreqroutingrule"
+  http_settings_name             = "${azurerm_virtual_network.MyVNet.name}-APbe-htst"
+  listener_name                  = "${azurerm_virtual_network.MyVNet.name}-APlistener"
+  request_routing_rule_name      = "${azurerm_virtual_network.MyVNet.name}-APreqroutingrule"
 }
 
 
@@ -185,7 +185,7 @@ resource "azurerm_application_gateway" "application_gateway" {
     tier     = "Standard_v2"
     capacity = 2
   }
-  
+
   gateway_ip_configuration {
     name      = "gatewayIpConfig"
     subnet_id = azurerm_subnet.subnet_ag.id
@@ -193,7 +193,7 @@ resource "azurerm_application_gateway" "application_gateway" {
 
   frontend_port {
     name = local.frontend_port_name
-    port = [80,443]
+    port = 80
   }
 
   frontend_ip_configuration {
