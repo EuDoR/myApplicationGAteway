@@ -138,6 +138,7 @@ resource "azurerm_linux_virtual_machine" "vm_docker" {
     version   = "latest"
   }
   
+  custom_data = filebase64("scripts/docker_install.sh")
 }
 
 resource "azurerm_linux_virtual_machine" "vm_otrasApps" {
@@ -162,6 +163,18 @@ resource "azurerm_linux_virtual_machine" "vm_otrasApps" {
   }
 }
 
+# Create Local Variables for Application Gateway
+locals {
+  backend_address_pool_name = "${azurerm_virtual_network.MyVNet.name}-APbeap"
+  frontend_port_name = "${azurerm_virtual_network.MyVNet.name}-APfeport"
+  frontend_ip_configuration_name = "${azurerm_virtual_network.MyVNet.name}-APfeipconfig"
+  http_settings_name = "${azurerm_virtual_network.MyVNet.name}-APbe-htst"
+  listener_name = "${azurerm_virtual_network.MyVNet.name}-APlistener"
+  request_routing_rule_name = "${azurerm_virtual_network.MyVNet.name}-APreqroutingrule"
+}
+
+
+#Create Application Gateway
 resource "azurerm_application_gateway" "application_gateway" {
   name                = "MyApplicationGateway"
   location            = azurerm_resource_group.MyResourceGroup.location
@@ -179,21 +192,21 @@ resource "azurerm_application_gateway" "application_gateway" {
   }
 
   frontend_port {
-    name = "frontendPort"
+    name = local.frontend_port_name
     port = [80,443]
   }
 
   frontend_ip_configuration {
-    name                 = "frontendIpConfig"
+    name                 = local.frontend_ip_configuration_name
     public_ip_address_id = azurerm_public_ip.public_ip_ag.id
   }
 
   backend_address_pool {
-    name = "backendPool"
+    name = local.backend_address_pool_name
   }
 
   backend_http_settings {
-    name                  = "httpSettings"
+    name                  = local.http_settings_name
     cookie_based_affinity = "Disabled"
     port                  = 80
     protocol              = "Http"
@@ -201,14 +214,15 @@ resource "azurerm_application_gateway" "application_gateway" {
   }
 
   http_listener {
-    name                           = "httpListener"
-    frontend_ip_configuration_name = "frontendIpConfig"
-    frontend_port_name             = "frontendPort"
+    name                           = local.listener_name
+    frontend_ip_configuration_name = local.frontend_ip_configuration_name
+    frontend_port_name             = local.frontend_port_name
     protocol                       = "Http"
   }
 
   request_routing_rule {
-    name                       = "rule1"
+    name                       = local.request_routing_rule_name
+    priority                   = 100
     rule_type                  = "Basic"
     http_listener_name         = "httpListener"
     backend_address_pool_name  = "backendPool"
