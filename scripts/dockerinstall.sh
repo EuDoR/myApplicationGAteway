@@ -1,4 +1,5 @@
-!#/bin/bash
+#!/bin/bash
+# This script installs Docker on a Linux system
 
 # Update package information
 sudo apt-get update
