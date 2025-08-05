@@ -101,6 +101,17 @@ resource "azurerm_network_security_group" "nsg_vms" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
+  security_rule {
+    name                       = "AllowHTTP"
+    priority                   = 1001
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_ranges    = ["8080"]
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
 }
 
 # Associate Network Security Groups with subnets
@@ -163,7 +174,7 @@ resource "azurerm_linux_virtual_machine" "vm_otrasApps" {
     sku       = "22_04-lts"
     version   = "latest"
   }
-  custom_data = filebase64("scripts/otrasappsinstall.sh")
+  custom_data = filebase64("scripts/jenkinsOld.sh")
 }
 
 # Create Local Variables for Application Gateway
@@ -230,5 +241,8 @@ resource "azurerm_application_gateway" "application_gateway" {
     http_listener_name         = local.listener_name
     backend_address_pool_name  = local.backend_address_pool_name
     backend_http_settings_name = local.http_settings_name
+  }
+  tags = {
+    environment = "pruebas"
   }
 }
