@@ -85,6 +85,7 @@ resource "azurerm_network_interface" "nic_otrasApps" {
   }
 }
 
+# Create Network Security Groups for Docker and other applications
 resource "azurerm_network_security_group" "nsg_vms" {
   name                = "NSGVMS"
   location            = azurerm_resource_group.MyResourceGroup.location

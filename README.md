@@ -71,46 +71,44 @@ instrucciones para crear //////////////
     Crea los backend pools apuntando a las IPs privadas de las VMs.
     Configura las reglas de enrutamiento para dirigir el tráfico a cada servidor según el dominio o ruta.
     (Opcional) Configura certificados SSL para el frontend (HTTPS).
-
-        ### 1. Listeners
-        - **Listener HTTP (puerto 80):**  
-        - Para pruebas iniciales.  
-        - Único listener puede enrutar por rutas como `/jenkins`, `/artifactory`, etc.
-        - **Listener HTTPS (puerto 443) [Opcional]:**  
-        - Solo si ya tienes certificado SSL.  
-        - Se usará más adelante para cifrar el tráfico externo.
-        ---
-        ### 2. Backend Pools
-        - Crea un backend pool por VM o servicio:
-        - VM1 (Docker) → 10.0.2.x
-        - VM2 (Jenkins, Artifactory, Xray) → 10.0.3.x
-        - Usa las IPs privadas de las VMs.
-        ---
-        ### 3. Health Probes (opcional pero recomendado)
-        - Verifican que los servicios estén activos antes de enrutar tráfico.
-        - Ejemplos:
-        - Jenkins: `/login` en puerto 8080
-        - Artifactory: `/artifactory/` en puerto 8081
-        - Xray: ruta correspondiente según su puerto
-        - Configura:
-        - Código esperado: 200
-        - Frecuencia y tiempo de espera
-        ---
-        ### 4. Reglas de Enrutamiento
-        - Si usas un solo listener:
-        - `/jenkins` → Backend Jenkins (VM2:8080)
-        - `/artifactory` → Backend Artifactory (VM2:8081)
-        - `/xray` → Backend Xray
-        - `/docker` → Backend Docker (VM1:puerto)
-        - Si usas múltiples dominios (requiere DNS configurado), crea una regla por dominio.
-        ---
-        ### 5. Listener HTTPS (Opcional)
-        - Si ya tienes un certificado (archivo .pfx y contraseña):
-        - Crea un listener HTTPS (puerto 443).
-        - Asócialo al mismo backend pool.
-        - Esto asegura tráfico cifrado desde el cliente hacia el gateway.
-        ---
-
+    ### 1. Listeners
+    - **Listener HTTP (puerto 80):**  
+    - Para pruebas iniciales.  
+    - Único listener puede enrutar por rutas como `/jenkins`, `/artifactory`, etc.
+    - **Listener HTTPS (puerto 443) [Opcional]:**  
+    - Solo si ya tienes certificado SSL.  
+    - Se usará más adelante para cifrar el tráfico externo.
+    ---
+    ### 2. Backend Pools
+    - Crea un backend pool por VM o servicio:
+    - VM1 (Docker) → 10.0.2.x
+    - VM2 (Jenkins, Artifactory, Xray) → 10.0.3.x
+    - Usa las IPs privadas de las VMs.
+    ---
+    ### 3. Health Probes (opcional pero recomendado)
+    - Verifican que los servicios estén activos antes de enrutar tráfico.
+    - Ejemplos:
+    - Jenkins: `/login` en puerto 8080
+    - Artifactory: `/artifactory/` en puerto 8081
+    - Xray: ruta correspondiente según su puerto
+    - Configura:
+    - Código esperado: 200
+    - Frecuencia y tiempo de espera
+    ---
+    ### 4. Reglas de Enrutamiento
+    - Si usas un solo listener:
+    - `/jenkins` → Backend Jenkins (VM2:8080)
+    - `/artifactory` → Backend Artifactory (VM2:8081)
+    - `/xray` → Backend Xray
+    - `/docker` → Backend Docker (VM1:puerto)
+    - Si usas múltiples dominios (requiere DNS configurado), crea una regla por dominio.
+    ---
+    ### 5. Listener HTTPS (Opcional)
+    - Si ya tienes un certificado (archivo .pfx y contraseña):
+    - Crea un listener HTTPS (puerto 443).
+    - Asócialo al mismo backend pool.
+    - Esto asegura tráfico cifrado desde el cliente hacia el gateway.
+    ---
 5. Pruebas iniciales
     Accede a los servicios desde el exterior a través del Application Gateway.
     Verifica que el tráfico externo use HTTPS y que el Application Gateway enrute correctamente a cada backend.
