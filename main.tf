@@ -128,12 +128,12 @@ resource "azurerm_subnet_network_security_group_association" "otrasAppsSubnetNSG
 
 # Create Virtual Machines for Docker and other applications
 resource "azurerm_linux_virtual_machine" "vm_docker" {
-  name                = "VMDocker"
-  resource_group_name = azurerm_resource_group.MyResourceGroup.name
-  location            = azurerm_resource_group.MyResourceGroup.location
-  size                = "Standard_B1s"
-  admin_username      = "adminuser"
-  admin_password      = "@dmin1234"
+  name                            = "VMDocker"
+  resource_group_name             = azurerm_resource_group.MyResourceGroup.name
+  location                        = azurerm_resource_group.MyResourceGroup.location
+  size                            = "Standard_B1s"
+  admin_username                  = "adminuser"
+  admin_password                  = "@dmin1234"
   disable_password_authentication = false
   network_interface_ids = [
     azurerm_network_interface.nic_docker.id,
@@ -155,18 +155,18 @@ resource "azurerm_linux_virtual_machine" "vm_docker" {
 }
 
 resource "azurerm_linux_virtual_machine" "vm_otrasApps" {
-  name  = "VMOtrasApps"
-  resource_group_name = azurerm_resource_group.MyResourceGroup.name
-  location = azurerm_resource_group.MyResourceGroup.location
-  size = "Standard_B1s"
-  admin_username = "adminuser"
-  admin_password = "@dmin1234"
+  name                            = "VMOtrasApps"
+  resource_group_name             = azurerm_resource_group.MyResourceGroup.name
+  location                        = azurerm_resource_group.MyResourceGroup.location
+  size                            = "Standard_B1s"
+  admin_username                  = "adminuser"
+  admin_password                  = "@dmin1234"
   disable_password_authentication = false
   network_interface_ids = [
     azurerm_network_interface.nic_otrasApps.id
   ]
   os_disk {
-    caching = "ReadWrite"
+    caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
   }
   source_image_reference {
@@ -180,12 +180,15 @@ resource "azurerm_linux_virtual_machine" "vm_otrasApps" {
 
 # Create Local Variables for Application Gateway
 locals {
-  backend_address_pool_name      = "${azurerm_virtual_network.MyVNet.name}-APbeap"
-  frontend_port_name             = "${azurerm_virtual_network.MyVNet.name}-APfeport"
-  frontend_ip_configuration_name = "${azurerm_virtual_network.MyVNet.name}-APfeipconfig"
-  http_settings_name             = "${azurerm_virtual_network.MyVNet.name}-APbe-htst"
-  listener_name                  = "${azurerm_virtual_network.MyVNet.name}-APlistener"
-  request_routing_rule_name      = "${azurerm_virtual_network.MyVNet.name}-APreqroutingrule"
+  backend_address_pool_name_docker = "${azurerm_virtual_network.MyVNet.name}-APbeap-docker"
+  backend_address_pool_name_otras  = "${azurerm_virtual_network.MyVNet.name}-APbeap-otrasapps"
+  frontend_port_name               = "${azurerm_virtual_network.MyVNet.name}-APfeport"
+  frontend_ip_configuration_name   = "${azurerm_virtual_network.MyVNet.name}-APfeipconfig"
+  http_settings_name_docker        = "${azurerm_virtual_network.MyVNet.name}-APbe-htst-docker"
+  http_settings_name_otras         = "${azurerm_virtual_network.MyVNet.name}-APbe-htst-otrasapps"
+  listener_name                    = "${azurerm_virtual_network.MyVNet.name}-APlistener"
+  request_routing_rule_name_docker = "${azurerm_virtual_network.MyVNet.name}-APreqroutingrule-docker"
+  request_routing_rule_name_otras  = "${azurerm_virtual_network.MyVNet.name}-APreqroutingrule-otrasapps"
 }
 
 
@@ -217,13 +220,23 @@ resource "azurerm_application_gateway" "application_gateway" {
   }
 
   backend_address_pool {
-    name = local.backend_address_pool_name
+    name = local.backend_address_pool_name_docker
+  }
+  backend_address_pool {
+    name = local.backend_address_pool_name_otras
   }
 
   backend_http_settings {
-    name                  = local.http_settings_name
+    name                  = local.http_settings_name_docker
     cookie_based_affinity = "Disabled"
-    port                  = 80
+    port                  = 8080
+    protocol              = "Http"
+    request_timeout       = 20
+  }
+  backend_http_settings {
+    name                  = local.http_settings_name_otras
+    cookie_based_affinity = "Disabled"
+    port                  = 8081
     protocol              = "Http"
     request_timeout       = 20
   }
@@ -236,12 +249,20 @@ resource "azurerm_application_gateway" "application_gateway" {
   }
 
   request_routing_rule {
-    name                       = local.request_routing_rule_name
+    name                       = local.request_routing_rule_name_docker
     priority                   = 100
     rule_type                  = "Basic"
     http_listener_name         = local.listener_name
-    backend_address_pool_name  = local.backend_address_pool_name
-    backend_http_settings_name = local.http_settings_name
+    backend_address_pool_name  = local.backend_address_pool_name_docker
+    backend_http_settings_name = local.http_settings_name_docker
+  }
+  request_routing_rule {
+    name                       = local.request_routing_rule_name_otras
+    priority                   = 101
+    rule_type                  = "Basic"
+    http_listener_name         = local.listener_name
+    backend_address_pool_name  = local.backend_address_pool_name_otras
+    backend_http_settings_name = local.http_settings_name_otras
   }
   tags = {
     environment = "pruebas"
