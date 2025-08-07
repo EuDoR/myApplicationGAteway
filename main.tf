@@ -187,8 +187,8 @@ locals {
   http_settings_name_docker        = "${azurerm_virtual_network.MyVNet.name}-APbe-htst-docker"
   http_settings_name_otras         = "${azurerm_virtual_network.MyVNet.name}-APbe-htst-otrasapps"
   listener_name                    = "${azurerm_virtual_network.MyVNet.name}-APlistener"
-  request_routing_rule_name_docker = "${azurerm_virtual_network.MyVNet.name}-APreqroutingrule-docker"
-  request_routing_rule_name_otras  = "${azurerm_virtual_network.MyVNet.name}-APreqroutingrule-otrasapps"
+  request_routing_rule_name        = "${azurerm_virtual_network.MyVNet.name}-APreqroutingrule"
+  url_path_map_name                = "${azurerm_virtual_network.MyVNet.name}-APurlpathmap"
 }
 
 
@@ -248,22 +248,30 @@ resource "azurerm_application_gateway" "application_gateway" {
     protocol                       = "Http"
   }
 
+  url_path_map {
+    name                = local.url_path_map_name
+    default_backend_address_pool_name  = local.backend_address_pool_name_docker
+    default_backend_http_settings_name = local.http_settings_name_docker
+
+    path_rule {
+      name                       = "otrasAppsPathRule"
+      paths                      = ["/jenkins*"]
+      backend_address_pool_name  = local.backend_address_pool_name_otras
+      backend_http_settings_name = local.http_settings_name_otras
+    }
+  }
+
   request_routing_rule {
-    name                       = local.request_routing_rule_name_docker
+    name                       = local.request_routing_rule_name
     priority                   = 100
     rule_type                  = "Basic"
     http_listener_name         = local.listener_name
     backend_address_pool_name  = local.backend_address_pool_name_docker
     backend_http_settings_name = local.http_settings_name_docker
   }
-  request_routing_rule {
-    name                       = local.request_routing_rule_name_otras
-    priority                   = 101
-    rule_type                  = "Basic"
-    http_listener_name         = local.listener_name
-    backend_address_pool_name  = local.backend_address_pool_name_otras
-    backend_http_settings_name = local.http_settings_name_otras
-  }
+
+
+
   tags = {
     environment = "pruebas"
   }
