@@ -189,6 +189,8 @@ locals {
   listener_name                    = "${azurerm_virtual_network.MyVNet.name}-APlistener"
   request_routing_rule_name        = "${azurerm_virtual_network.MyVNet.name}-APreqroutingrule"
   url_path_map_name                = "${azurerm_virtual_network.MyVNet.name}-APurlpathmap"
+  #health_probe_name_docker         = "${azurerm_virtual_network.MyVNet.name}-APhealthprobe-docker"
+  health_probe_name_otras          = "${azurerm_virtual_network.MyVNet.name}-APhealthprobe-otrasapps"
 }
 
 
@@ -229,16 +231,19 @@ resource "azurerm_application_gateway" "application_gateway" {
   backend_http_settings {
     name                  = local.http_settings_name_docker
     cookie_based_affinity = "Disabled"
-    port                  = 8080
+    port                  = 8081
     protocol              = "Http"
     request_timeout       = 20
   }
   backend_http_settings {
     name                  = local.http_settings_name_otras
     cookie_based_affinity = "Disabled"
-    port                  = 8081
+    port                  = 8080
     protocol              = "Http"
     request_timeout       = 20
+    pick_host_name_from_backend_address = true
+    probe_name = local.health_probe_name_otras
+
   }
 
   http_listener {
@@ -255,7 +260,7 @@ resource "azurerm_application_gateway" "application_gateway" {
 
     path_rule {
       name                       = "otrasAppsPathRule"
-      paths                      = ["/jenkins*"]
+      paths                      = ["/otras*"]
       backend_address_pool_name  = local.backend_address_pool_name_otras
       backend_http_settings_name = local.http_settings_name_otras
     }
@@ -264,10 +269,22 @@ resource "azurerm_application_gateway" "application_gateway" {
   request_routing_rule {
     name                       = local.request_routing_rule_name
     priority                   = 100
-    rule_type                  = "Basic"
+    rule_type                  = "PathBasedRouting"
+    url_path_map_name          = local.url_path_map_name
     http_listener_name         = local.listener_name
-    backend_address_pool_name  = local.backend_address_pool_name_docker
-    backend_http_settings_name = local.http_settings_name_docker
+  }
+  probe {
+    name                = local.health_probe_name_otras
+    protocol            = "Http"
+    path                = "/login"
+    interval            = 30
+    timeout             = 30
+    unhealthy_threshold = 3
+    pick_host_name_from_backend_http_settings =  true
+    match {
+      status_code = ["200-403"]
+    }
+
   }
 
 
