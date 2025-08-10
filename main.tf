@@ -276,7 +276,7 @@ resource "azurerm_application_gateway" "application_gateway" {
   probe {
     name                = local.health_probe_name_otras
     protocol            = "Http"
-    path                = "/login"
+    path                = "/otras/login"
     interval            = 30
     timeout             = 30
     unhealthy_threshold = 3
