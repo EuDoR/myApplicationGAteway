@@ -113,6 +113,17 @@ resource "azurerm_network_security_group" "nsg_vms" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
+    security_rule {
+    name                       = "Allow_Artifactory_Web_and_API"
+    priority                   = 1002
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_ranges    = ["8081", "8082"]
+    source_address_prefix      = "Internet" # Ajusta esto a tu rango IP seguro
+    destination_address_prefix = "*"
+  }
 }
 
 # Associate Network Security Groups with subnets
@@ -151,7 +162,7 @@ resource "azurerm_linux_virtual_machine" "vm_docker" {
     version   = "latest"
   }
 
-  custom_data = filebase64("scripts/dockerinstall.sh")
+  custom_data = filebase64("scripts/artifactory.sh")
 }
 
 resource "azurerm_linux_virtual_machine" "vm_otrasApps" {
