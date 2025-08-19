@@ -25,12 +25,12 @@ JAVA_ARGS="-Djava.awt.headless=true \
 -Djenkins.model.Jenkins.sessionIdCookie.secure=true \
 -Djenkins.model.Jenkins.sessionIdCookie.httpOnly=true \
 -Djenkins.model.Jenkins.sessionIdCookie.sameSite=strict \
--Djenkins.model.Jenkins.hostName=172.191.157.46 \
--Djenkins.model.Jenkins.url=http://172.191.157.46/otras/ \
+-Djenkins.model.Jenkins.hostName=20.163.208.199 \
+-Djenkins.model.Jenkins.url=http://20.163.208.199/otras/ \
 -Djenkins.model.Jenkins.secureProxy=true \
 -Djenkins.model.Jenkins.xForwardedForHeader=true \
--Djenkins.model.Jenkins.servlet.contextPath=/otras/ \
--Djenkins.model.Jenkins.location=http://172.191.157.46/otras/"
+-Djenkins.model.Jenkins.location=http://20.163.208.199/otras/ \
+-Djenkins.model.Jenkins.servlet.contextPath=/otras/"
 
 #JAVA_ARGS="-Xmx256m"
 
@@ -101,7 +101,7 @@ PREFIX=/$NAME
 # --webroot=~/.jenkins/war
 # --prefix=$PREFIX
 
-JENKINS_ARGS="--webroot=/var/cache/$NAME/war --httpPort=$HTTP_PORT --httpListenAddr>
+JENKINS_ARGS="--webroot=/var/cache/$NAME/war --httpPort=$HTTP_PORT --httpListenAddress=0.0.0.0 --prefix=/otras/"
 
 
 
