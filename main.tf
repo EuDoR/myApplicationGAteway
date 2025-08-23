@@ -109,7 +109,7 @@ resource "azurerm_network_security_group" "nsg_vms" {
     access                     = "Allow"
     protocol                   = "Tcp"
     source_port_range          = "*"
-    destination_port_ranges    = ["8080"]
+    destination_port_ranges    = ["8080", "8443"]
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
