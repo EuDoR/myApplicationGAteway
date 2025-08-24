@@ -109,7 +109,7 @@ resource "azurerm_network_security_group" "nsg_vms" {
     access                     = "Allow"
     protocol                   = "Tcp"
     source_port_range          = "*"
-    destination_port_ranges    = ["8080", "8443"]
+    destination_port_ranges    = ["8080", "8443", "8081", "8082", "8036"]
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
@@ -184,6 +184,7 @@ resource "azurerm_linux_virtual_machine" "vm_otrasApps" {
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
+    disk_size_gb         = 100
   }
   source_image_reference {
     publisher = "RedHat"
@@ -196,7 +197,7 @@ resource "azurerm_linux_virtual_machine" "vm_otrasApps" {
     # sku       = "22_04-lts"
     # version   = "latest"
   }
-  custom_data = filebase64("scripts/artifactoryredhatold.sh")
+  # custom_data = filebase64("scripts/artifactoryredhatold.sh")
   # custom_data   = filebase64("scripts/jenkinsOldRedhat.sh")
 }
 
