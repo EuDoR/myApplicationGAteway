@@ -17,15 +17,17 @@ sudo chown -R jfrog:jfrog /opt/jfrog
 
 # Descargar Artifactory
 cd /opt/jfrog
-wget -q https://releases.jfrog.io/artifactory/artifactory-pro-rpms/jfrog-artifactory-pro/jfrog-artifactory-pro-[RELEASE].rpm
+wget -q https://releases.jfrog.io/artifactory/artifactory-pro-rpms/jfrog-artifactory-pro/jfrog-artifactory-pro-${ARTIFACTORY_VERSION}.rpm
 sudo yum install -y jfrog-artifactory-pro-${ARTIFACTORY_VERSION}.rpm
 
 # Descargar Xray
-# wget -q https://releases.jfrog.io/artifactory/jfrog-rpms/jfrog-xray-${XRAY_VERSION}.rpm
+# wget -q https://releases.jfrog.io/artifactory/jfrog-xray/xray-rpm/${XRAY_VERSION}/jfrog-xray-${XRAY_VERSION}-rpm.tar.gz
+# tar -xvf jfrog-xray-${XRAY_VERSION}-rpm.tar.gz
+# cd jfrog-xray-${XRAY_VERSION}-rpm
 # sudo yum install -y jfrog-xray-${XRAY_VERSION}.rpm
 
 # Habilitar servicios
-sudo systemctl enable artifactory
+sudo systemctl enable artifactory 
 # sudo systemctl enable xray
 
 # Iniciar servicios

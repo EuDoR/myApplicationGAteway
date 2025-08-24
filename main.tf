@@ -186,17 +186,17 @@ resource "azurerm_linux_virtual_machine" "vm_otrasApps" {
     storage_account_type = "Standard_LRS"
   }
   source_image_reference {
-    # publisher = "RedHat"
-    # offer     = "RHEL"          # Oferta base de Red Hat
-    # sku       = "8-lvm"         # SKU de RHEL 8 (más ligero que 9)
-    # version   = "latest"
-
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-jammy"
-    sku       = "22_04-lts"
+    publisher = "RedHat"
+    offer     = "RHEL"          # Oferta base de Red Hat
+    sku       = "8-lvm"         # SKU de RHEL 8 (más ligero que 9)
     version   = "latest"
+
+    # publisher = "Canonical"
+    # offer     = "0001-com-ubuntu-server-jammy"
+    # sku       = "22_04-lts"
+    # version   = "latest"
   }
-  custom_data = filebase64("scripts/jenkinsOldubuntu.sh")
+  custom_data = filebase64("scripts/artifactoryredhatold.sh")
   # custom_data   = filebase64("scripts/jenkinsOldRedhat.sh")
 }
 
