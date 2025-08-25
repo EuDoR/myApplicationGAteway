@@ -174,7 +174,8 @@ resource "azurerm_linux_virtual_machine" "vm_otrasApps" {
   name                            = "VMOtrasApps"
   resource_group_name             = azurerm_resource_group.MyResourceGroup.name
   location                        = azurerm_resource_group.MyResourceGroup.location
-  size                            = "Standard_B1ms"
+  # size                            = "Standard_B1ms"
+  size                            = "Standard_B2s"  # Tamaño ajustado para más recursos
   admin_username                  = "adminuser"
   admin_password                  = "@dmin1234"
   disable_password_authentication = false
@@ -197,7 +198,7 @@ resource "azurerm_linux_virtual_machine" "vm_otrasApps" {
     # sku       = "22_04-lts"
     # version   = "latest"
   }
-  # custom_data = filebase64("scripts/artifactoryredhatold.sh")
+  custom_data = filebase64("scripts/artifactoryredhatold.sh")
   # custom_data   = filebase64("scripts/jenkinsOldRedhat.sh")
 }
 
