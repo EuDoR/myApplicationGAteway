@@ -138,70 +138,70 @@ resource "azurerm_subnet_network_security_group_association" "otrasAppsSubnetNSG
 }
 
 # Create Virtual Machines for Docker and other applications
-resource "azurerm_linux_virtual_machine" "vm_docker" {
-  name                            = "VMDocker"
-  resource_group_name             = azurerm_resource_group.MyResourceGroup.name
-  location                        = azurerm_resource_group.MyResourceGroup.location
-  size                            = "Standard_B1ms"
-  admin_username                  = "adminuser"
-  admin_password                  = "@dmin1234"
-  disable_password_authentication = false
-  network_interface_ids = [
-    azurerm_network_interface.nic_docker.id,
-  ]
-
-  os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
-  }
-
-
-
-    # publisher = "RedHat"
-    # offer     = "RHEL"          # Oferta base de Red Hat
-    # sku       = "8-lvm"         # SKU de RHEL 8 (más ligero que 9)
-    # version   = "latest"    
-    
-    # publisher = "Canonical"
-    # offer     = "0001-com-ubuntu-server-jammy"
-    # sku       = "22_04-lts"
-    # version   = "latest"
-  # }
-
-  # custom_data = filebase64("scripts/dockerinstallRedhat.sh")
-}
-
-# resource "azurerm_linux_virtual_machine" "vm_otrasApps" {
-#   name                            = "VMOtrasApps"
+# resource "azurerm_linux_virtual_machine" "vm_docker" {
+#   name                            = "VMDocker"
 #   resource_group_name             = azurerm_resource_group.MyResourceGroup.name
 #   location                        = azurerm_resource_group.MyResourceGroup.location
-#   # size                            = "Standard_B1ms"
-#   size                            = "Standard_B2s"  # Tamaño ajustado para más recursos
+#   size                            = "Standard_B1ms"
 #   admin_username                  = "adminuser"
 #   admin_password                  = "@dmin1234"
 #   disable_password_authentication = false
 #   network_interface_ids = [
-#     azurerm_network_interface.nic_otrasApps.id
+#     azurerm_network_interface.nic_docker.id,
 #   ]
+
 #   os_disk {
 #     caching              = "ReadWrite"
 #     storage_account_type = "Standard_LRS"
-#     disk_size_gb         = 100
 #   }
-#   source_image_reference {
-#     publisher = "RedHat"
-#     offer     = "RHEL"          # Oferta base de Red Hat
-#     sku       = "8-lvm"         # SKU de RHEL 8 (más ligero que 9)
-#     version   = "latest"
 
+
+
+#     # publisher = "RedHat"
+#     # offer     = "RHEL"          # Oferta base de Red Hat
+#     # sku       = "8-lvm"         # SKU de RHEL 8 (más ligero que 9)
+#     # version   = "latest"    
+    
 #     # publisher = "Canonical"
 #     # offer     = "0001-com-ubuntu-server-jammy"
 #     # sku       = "22_04-lts"
 #     # version   = "latest"
-#   }
-#   custom_data = filebase64("scripts/artifactoryredhatold.sh")
-#   # custom_data   = filebase64("scripts/jenkinsOldRedhat.sh")
+#   # }
+
+#   # custom_data = filebase64("scripts/dockerinstallRedhat.sh")
 # }
+
+resource "azurerm_linux_virtual_machine" "vm_otrasApps" {
+  name                            = "VMOtrasApps"
+  resource_group_name             = azurerm_resource_group.MyResourceGroup.name
+  location                        = azurerm_resource_group.MyResourceGroup.location
+  # size                            = "Standard_B1ms"
+  size                            = "Standard_B2s"  # Tamaño ajustado para más recursos
+  admin_username                  = "adminuser"
+  admin_password                  = "@dmin1234"
+  disable_password_authentication = false
+  network_interface_ids = [
+    azurerm_network_interface.nic_otrasApps.id
+  ]
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+    disk_size_gb         = 100
+  }
+  source_image_reference {
+    publisher = "RedHat"
+    offer     = "RHEL"          # Oferta base de Red Hat
+    sku       = "8-lvm"         # SKU de RHEL 8 (más ligero que 9)
+    version   = "latest"
+
+    # publisher = "Canonical"
+    # offer     = "0001-com-ubuntu-server-jammy"
+    # sku       = "22_04-lts"
+    # version   = "latest"
+  }
+  custom_data = filebase64("scripts/artifactoryredhatold.sh")
+  # custom_data   = filebase64("scripts/jenkinsOldRedhat.sh")
+}
 
 # Create Local Variables for Application Gateway
 locals {
