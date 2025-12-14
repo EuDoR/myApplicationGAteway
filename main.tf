@@ -1,8 +1,7 @@
 # main.tf
 provider "azurerm" {
-  features {
-
-  }
+  features {}
+  # subscription_id = "67f32328-0f4e-4cbd-9f39-c4eef480cad8"
 }
 # Create a Resource Group
 resource "azurerm_resource_group" "MyResourceGroup" {
