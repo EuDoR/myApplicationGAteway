@@ -120,3 +120,4 @@ instrucciones para crear //////////////
 8. Validación y pruebas finales
     Verifica que todos los servicios sean accesibles y seguros.
     Asegúrate de que las reglas de firewall y NSG permitan solo el tráfico necesario.
+    PR a master
